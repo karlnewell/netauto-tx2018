@@ -1,0 +1,21 @@
+router bgp {{bgp.asn}}
+{%- for peer in bgp.peers %}
+  neighbor {{peer}} remote-as {{bgp.asn}};
+  neighbor {{peer}} update-source Loopback0;
+{%- endfor %}
+ !
+{%- if 'inet' in bgp.af %}
+ address-family ipv4
+{%- for peer in bgp.peers %}
+  neighbor {{peer}} activate
+{%- endfor %}
+ exit-address-family
+{%- endif %}
+ !
+{%- if 'inet-vpn' in bgp.af %}
+ address-family vpnv4
+{%- for peer in bgp.peers %}
+  neighbor {{peer}} activate
+{%- endfor %}
+ exit-address-family
+{% endif %}

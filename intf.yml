@@ -1,0 +1,22 @@
+---
+interfaces:
+  interface:
+    et1:
+      config:
+        description: "Interface 1"
+        mtu: 1500
+      name: et1
+      routed-vlan:
+        ipv4:
+          addresses:
+            address:
+              192.0.2.1:
+                config:
+                  ip: 192.0.2.1
+                  prefix-length: 24
+                ip: 192.0.2.1
+    et2:
+      config:
+        description: "Interface 2"
+        mtu: 1500
+      name: et2
