@@ -1,0 +1,11 @@
+.git
+bin
+etc
+include
+lib
+share
+.dockerignore
+.gitignore
+Dockerfile
+pip-selfcheck.json
+.Python
