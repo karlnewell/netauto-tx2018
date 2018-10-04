@@ -9,8 +9,7 @@ def pretty_print(dictionary):
     print(json.dumps(dictionary, sort_keys=True, indent=4))
 
 with open("intf.yml") as f:
-    stream = f.read()
-    temp = yaml.load(stream)
+    temp = yaml.load(f)
 
 config = napalm_yang.base.Root()
 config.add_model(napalm_yang.models.openconfig_interfaces())
