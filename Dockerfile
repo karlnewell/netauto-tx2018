@@ -30,4 +30,4 @@ RUN pip install -r requirements.txt
 
 USER techex18
  
-ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["/bin/bash"]
