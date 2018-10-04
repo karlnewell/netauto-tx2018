@@ -1,0 +1,15 @@
+protocols {
+    bgp {
+        group Test {
+            type internal;
+{%         for af in bgp.af %}
+            family {{ af }} {
+                unicast;
+            } 
+{%         endfor %}
+{%         for peer in bgp.peers %}
+            neighbor {{peer}};
+{%         endfor %}
+        }
+    }
+}

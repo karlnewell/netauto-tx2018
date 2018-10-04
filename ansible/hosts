@@ -1,0 +1,23 @@
+---
+all:
+  children:
+    junos:
+      children:
+        vmx:
+          hosts:
+            ansible-vmx1:
+              ansible_host: 10.39.0.41
+            ansible-vmx2:
+              ansible_host: 10.39.0.42
+            ansible-vmx3:
+              ansible_host: 10.39.0.43
+    ios:
+      children:
+        csr:
+          hosts:
+            ansible-csr4:
+              ansible_host: 10.39.0.44
+            ansible-csr5:
+              ansible_host: 10.39.0.45
+            ansible-csr6:
+              ansible_host: 10.39.0.46

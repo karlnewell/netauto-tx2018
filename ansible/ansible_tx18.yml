@@ -1,0 +1,12 @@
+- name: Generate Configuration
+  gather_facts: no
+  connection: local
+  hosts: all
+
+  tasks:
+    - include_vars: "./bgp.yml"
+    - name: create the directory for the configuration
+      file: path=configs state=directory
+      run_once: true
+    - name: Generate Configuration
+      template: src=bgp_{{ansible_network_os}}.j2 dest=configs/{{inventory_hostname}}.conf
