@@ -23,7 +23,7 @@ RUN adduser --disabled-password --gecos "" techex18
 RUN adduser techex18 sudo
 RUN echo "techex18 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-WORKDIR /opt/netauto-tx2018/
+WORKDIR /home/techex18/
 COPY . .
 RUN chown -Rh techex18:techex18 .
 RUN pip install -r requirements.txt
