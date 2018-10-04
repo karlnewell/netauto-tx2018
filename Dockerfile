@@ -5,7 +5,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  command-not-found \
  curl \
  git \
+ inetutils-ping \
  locales \
+ netcat-openbsd \
  python \
  python-virtualenv \
  python-pip \
