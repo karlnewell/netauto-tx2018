@@ -1,0 +1,25 @@
+---
+all:
+  children:
+    junos:
+      children:
+        vmx:
+          hosts:
+            ntc-vmx7:
+              ansible_host: 18.235.232.152
+            ntc-vmx8:
+              ansible_host: 34.239.98.235
+            ntc-vmx9:
+              ansible_host: 18.215.215.54
+    cisco:
+      children:
+        ios:
+          hosts:
+            ntc-csr1:
+              ansible_host: 18.235.163.52
+            ntc-csr2:
+              ansible_host: 54.158.24.79
+            ntc-csr3:
+              ansible_host: 54.242.37.150
+  vars:
+    model: core-model-ntc.yml

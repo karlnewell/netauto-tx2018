@@ -1,0 +1,8 @@
+---
+#ansible_connection: network_cli
+ansible_connection: netconf
+ansible_network_os: junos
+ansible_user: ntc
+ansible_ssh_pass: ntc123
+#ansible_user: salt
+#ansible_ssh_private_key_file: /srv/salt/ssh/id_rsa

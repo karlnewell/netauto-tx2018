@@ -1,0 +1,105 @@
+ntc@vmx7> show configuration
+## Last commit: 2017-06-29 16:39:22 UTC by ntc
+version 15.1F4.15;
+groups {
+    global {
+        system {
+            login {
+                user ntc {
+                    uid 2000;
+                    class super-user;
+                    authentication {
+                        encrypted-password "$5$9dE0bRr9$.VvWkJKa3J7HW95.G3KxW9x01nUoVi0PnXuZBlpOUH9"; ## SECRET-DATA
+                    }
+                }
+            }
+        }
+    }
+}
+apply-groups global;
+system {
+    host-name vmx7;
+    domain-name ntc.com;
+    root-authentication {
+        encrypted-password "$5$1FR588oW$dWnmaj9S4t/GHEYL/gn8tOz3.yXoIMYHrCDyn.4hIo0"; ## SECRET-DATA
+    }
+    login {
+        class super-user-local {
+            idle-timeout 3600;
+            permissions all;
+        }
+        user ntc {
+            class super-user-local;
+        }
+    }
+    services {
+        ssh;
+        netconf {
+            ssh;
+        }
+    }
+    syslog {
+        user * {
+            any emergency;
+        }
+        file messages {
+            any notice;
+            authorization info;
+        }
+        file interactive-commands {
+            interactive-commands any;
+        }
+    }
+}
+interfaces {
+    ge-0/0/0 {
+        unit 0 {
+            family inet {
+                address 10.1.254.2/30;
+            }
+        }
+    }
+    ge-0/0/1 {
+        unit 0 {
+            family inet {
+                address 10.1.254.6/30;
+            }
+        }
+    }
+    ge-0/0/2 {
+        unit 0 {
+            family inet;
+        }
+    }
+    ge-0/0/3 {
+        unit 0 {
+            family inet;
+        }
+    }
+    fxp0 {
+        unit 0 {
+            family inet {
+                address 10.0.0.37/24;
+            }
+        }
+    }
+}
+snmp {
+    community public {
+        authorization read-only;
+    }
+    community networktocode {
+        authorization read-only;
+    }
+}
+routing-options {
+    static {
+        route 0.0.0.0/0 next-hop 10.0.0.2;
+    }
+}
+protocols {
+    lldp {
+        port-id-subtype interface-name;
+        interface all;
+    }
+}

@@ -1,0 +1,73 @@
+---
+- name: Validate LLDP and Interfaces
+  gather_facts: no
+  hosts: all
+  tags: [ validate ]
+  tasks:
+  - name: Get BGP and LLDP output
+    napalm_get_facts:
+        hostname: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        dev_os: "{{ ansible_network_os }}"
+        optional_args:
+          key_file: "{{ ansible_ssh_private_key_file }}"
+        filter:
+          - lldp_neighbors
+          - bgp_neighbors
+          - interfaces_ip
+          - interfaces
+  - include_vars: "./nodes.yml"
+  - set_fact: node={{nodes[inventory_hostname]}}
+  - name: Validate core interfaces are up
+    assert:
+      that: napalm_interfaces[item.split('.')[0]].is_up == true
+      msg: Interface {{item}} on {{inventory_hostname}} is not operational
+    with_list: "{{node.links.keys()}}"
+    ignore_errors: true
+  - name: Validate LLDP neighbors
+    assert:
+      that: node.links[item.key].remote == napalm_lldp_neighbors[item.key.split('.')[0]][0].hostname
+      msg: Router {{inventory_hostname}} has incorrect neighbor on {{item.key}} interface
+    with_dict: "{{node.links}}"
+    ignore_errors: True
+  - name: Validate correct IP and subnet mask
+    assert:
+      that:
+      - napalm_interfaces_ip[item].ipv4.keys()[0] == node.links[item].ip
+      - napalm_interfaces_ip[item].ipv4.values()[0]['prefix_length'] == 24
+      msg: Interface {{item}} on {{inventory_hostname}} has incorrect IP address
+    with_list: "{{node.links.keys()}}"
+    ignore_errors: True
+  - name: Validate BGP Sessions
+    assert:
+      that:
+      - napalm_bgp_neighbors.global.peers[item].is_up == true
+      msg: BGP neighbor {{item}} on {{inventory_hostname}} is not operational
+    with_list: "{{node.bgp.ibgp.peers}}"
+    ignore_errors: true
+
+- name: Ping test
+  gather_facts: no
+  hosts: all
+  tags: [ ping ]
+  tasks:
+  - include_vars: "./nodes.yml"
+  - set_fact: node={{nodes[inventory_hostname]}}
+  - name: Perform ping on JunOS nodes
+    napalm_ping:
+      hostname: "{{ ansible_host }}"
+      username: "{{ ansible_user }}"
+      dev_os: "{{ ansible_network_os }}"
+      optional_args:
+        key_file: "{{ ansible_ssh_private_key_file }}"
+      destination: "{{nodes[item].rid}}"
+    with_list: "{{nodes.keys()}}"
+    when: ansible_network_os == 'junos'
+    register: ping_result
+  - debug: var=ping_result
+  - name: Validate network reachability
+    assert:
+      that: item.results.success is defined
+      msg: "{{item.item}} is not reachable to {{inventory_hostname}}"
+    with_list: "{{hostvars[inventory_hostname].ping_result.results}}"
+    when: ansible_network_os == 'junos'

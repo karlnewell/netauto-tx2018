@@ -1,0 +1,114 @@
+---
+
+common:
+  bgp_asn: 65000
+
+nodes:
+  - name: ansible-veos1
+    mgmt: 10.39.0.41
+    rid: 10.39.8.41
+    sid: 10
+    iso: 49.0001.0010.0100.1001.00
+
+  - name: ansible-veos2
+    mgmt: 10.39.0.42
+    rid: 10.39.8.42
+    sid: 20
+    iso: 49.0001.0010.0100.1002.00
+
+  - name: ansible-veos3
+    mgmt: 10.39.0.43
+    rid: 10.39.8.43
+    sid: 30
+    iso: 49.0001.0010.0100.1003.00
+
+  - name: ansible-veos4
+    mgmt: 10.39.0.44
+    rid: 10.39.8.44
+    sid: 40
+    iso: 49.0001.0010.0100.1004.00
+
+  - name: ansible-veos5
+    mgmt: 10.39.0.55
+    rid: 10.39.8.55
+    sid: 50
+    iso: 49.0001.0010.0100.1005.00
+#    lu: 163.253.39.165
+
+  - name: ansible-veos55
+    mgmt: 10.39.0.155
+    rid: 10.39.8.155
+
+  - name: ansible-veos6
+    mgmt: 10.39.0.56
+    rid: 10.39.8.56
+    sid: 60
+    iso: 49.0001.0010.0100.1006.00
+#    lu: 163.253.39.165
+
+  - name: ansible-veos66
+    mgmt: 10.39.0.156
+    rid: 10.39.8.156
+
+links:
+  - {left: ansible-veos1, left_port: Ethernet1, left_ip: 172.10.12.1,
+      right: ansible-veos2, right_port: Ethernet1, right_ip: 172.10.12.2, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-veos1, left_port: Ethernet2, left_ip: 172.10.13.1,
+      right: ansible-veos3, right_port: Ethernet1, right_ip: 172.10.13.3, 
+      cost: 10, mpls: True, iso: True }
+
+#  - {left: ansible-veos1, left_port: Ethernet3, left_ip: 172.10.14.1,
+#      right: ansible-veos4, right_port: Ethernet1, right_ip: 172.10.14.4, 
+#      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-veos1, left_port: Ethernet4, left_ip: 172.10.15.1,
+      right: ansible-veos5, right_port: Ethernet1, right_ip: 172.10.15.5, 
+      cost: 10, mpls: True, iso: True }
+
+#  - {left: ansible-veos2, left_port: Ethernet2, left_ip: 172.10.23.2,
+#      right: ansible-veos3, right_port: Ethernet2, right_ip: 172.10.23.3, 
+#      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-veos2, left_port: Ethernet3, left_ip: 172.10.24.2,
+      right: ansible-veos4, right_port: Ethernet2, right_ip: 172.10.24.4, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-veos2, left_port: Ethernet4, left_ip: 172.10.25.2,
+      right: ansible-veos5, right_port: Ethernet2, right_ip: 172.10.25.5, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-veos3, left_port: Ethernet3, left_ip: 172.10.34.3,
+      right: ansible-veos4, right_port: Ethernet3, right_ip: 172.10.34.4, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-veos3, left_port: Ethernet4, left_ip: 172.10.36.3,
+      right: ansible-veos6, right_port: Ethernet1, right_ip: 172.10.36.6, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-veos4, left_port: Ethernet4, left_ip: 172.10.46.4,
+      right: ansible-veos6, right_port: Ethernet2, right_ip: 172.10.46.6, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-veos5, left_port: Ethernet3, left_ip: 172.10.55.5,
+      right: ansible-veos55, right_port: Ethernet1, right_ip: 172.10.55.55, 
+      }
+
+  - {left: ansible-veos6, left_port: Ethernet3, left_ip: 172.10.66.6,
+      right: ansible-veos66, right_port: Ethernet1, right_ip: 172.10.66.66, 
+      }
+
+bgp:
+  rr: [10.39.8.41]
+  clients: [10.39.8.42, 10.39.8.43, 10.39.8.44]
+  af:
+    - inet
+    - inet-vpn
+
+#ospf:
+#  area: 0
+#  network: p2p
+
+#isis:
+#  network: p2p

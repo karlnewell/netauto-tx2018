@@ -1,0 +1,115 @@
+#
+# Nodes in the network
+#
+
+---
+
+common:
+    bgp_asn: 65000
+
+nodes:
+
+  ntc-csr1:
+    mgmt: 10.0.0.51
+    rid:  1.1.1.1
+    links:
+      GigabitEthernet4.0: { ip: 172.10.12.1, remote: ntc-csr2  , vlan: 0 , mpls: True }
+      GigabitEthernet2.0: { ip: 172.10.13.1, remote: ntc-csr3  , vlan: 0 , mpls: True }
+      GigabitEthernet3.0: { ip: 172.10.17.1, remote: ntc-vmx7  , vlan: 0 , mpls: True }
+    bgp:
+       ibgp:
+         rr: true
+         peers:
+            - 2.2.2.2
+            - 3.3.3.3
+            - 7.7.7.7
+            - 8.8.8.8
+            - 9.9.9.9
+         af:
+            - inet
+            - inet-vpn
+    ospf:
+        area: 0
+
+  ntc-csr2:
+    mgmt: 10.0.0.52
+    rid:  2.2.2.2
+    links:
+      GigabitEthernet4.0: { ip: 172.10.12.2, remote: ntc-csr1  , vlan: 0 , mpls: True }
+      GigabitEthernet3.0: { ip: 172.10.23.2, remote: ntc-csr3  , vlan: 0 , mpls: True }
+      GigabitEthernet2.0: { ip: 172.10.29.2, remote: ntc-vmx9  , vlan: 0 , mpls: True }
+    bgp:
+       ibgp:
+         peers:
+            - 1.1.1.1
+         af:
+            - inet
+            - inet-vpn
+    ospf:
+        area: 0
+
+  ntc-csr3:
+    mgmt: 10.0.0.53
+    rid:  3.3.3.3
+    links:
+      GigabitEthernet2.0: { ip: 172.10.13.3, remote: ntc-csr1  , vlan: 0 , mpls: True }
+      GigabitEthernet3.0: { ip: 172.10.23.3, remote: ntc-csr2  , vlan: 0 , mpls: True }
+    bgp:
+       ibgp:
+         peers:
+            - 1.1.1.1
+         af:
+            - inet
+            - inet-vpn
+    ospf:
+        area: 0
+
+  ntc-vmx7:
+    mgmt: 10.0.0.37
+    rid:  7.7.7.7
+    links:
+      ge-0/0/3.0: { ip: 172.10.17.7, remote: ntc-csr1  , vlan: 0 , mpls: True }
+      ge-0/0/1.0: { ip: 172.10.79.7, remote: ntc-vmx9  , vlan: 0 , mpls: True }
+      ge-0/0/0.0: { ip: 172.10.78.7, remote: ntc-vmx8  , vlan: 0 , mpls: True }
+    bgp:
+       ibgp:
+         peers:
+            - 1.1.1.1
+         af:
+            - inet
+            - inet-vpn
+    ospf:
+        area: 0
+
+  ntc-vmx8:
+    mgmt: 10.0.0.38
+    rid:  8.8.8.8
+    links:
+      ge-0/0/0.0: { ip: 172.10.78.8, remote: ntc-vmx7  , vlan: 0 , mpls: True }
+      ge-0/0/2.0: { ip: 172.10.89.8, remote: ntc-vmx9  , vlan: 0 , mpls: True }
+    bgp:
+       ibgp:
+         peers:
+            - 1.1.1.1
+         af:
+            - inet
+            - inet-vpn
+    ospf:
+        area: 0
+
+  ntc-vmx9:
+    mgmt: 10.0.0.39
+    rid:  9.9.9.9
+    links:
+      ge-0/0/3.0: { ip: 172.10.29.9, remote: ntc-csr2  , vlan: 0 , mpls: True }
+      ge-0/0/1.0: { ip: 172.10.79.9, remote: ntc-vmx7  , vlan: 0 , mpls: True }
+      ge-0/0/2.0: { ip: 172.10.89.9, remote: ntc-vmx8  , vlan: 0 , mpls: True }
+    bgp:
+       ibgp:
+         peers:
+            - 1.1.1.1
+         af:
+            - inet
+            - inet-vpn
+    ospf:
+        area: 0

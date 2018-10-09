@@ -1,0 +1,90 @@
+---
+
+common:
+  bgp_asn: 65000
+
+nodes:
+  - name: ansible-csr1
+    mgmt: 10.0.0.51
+    rid: 1.1.1.1
+    sid: 10
+    iso: 49.0001.0010.0100.1001.00
+
+  - name: ansible-csr2
+    mgmt: 10.0.0.52
+    rid: 2.2.2.2
+    sid: 20
+    iso: 49.0001.0010.0100.1002.00
+
+  - name: ansible-csr3
+    mgmt: 10.0.0.53
+    rid: 3.3.3.3
+    sid: 30
+    iso: 49.0001.0010.0100.1003.00
+
+  - name: ansible-csr4
+    mgmt: 10.0.0.54
+    rid: 4.4.4.4
+    sid: 40
+    iso: 49.0001.0010.0100.1004.00
+
+  - name: ansible-csr5
+    mgmt: 10.0.0.55
+    rid: 5.5.5.5
+    sid: 50
+    iso: 49.0001.0010.0100.1005.00
+#    lu: 163.253.39.165
+
+  - name: ansible-csr6
+    mgmt: 10.0.0.56
+    rid: 6.6.6.6
+    sid: 60
+    iso: 49.0001.0010.0100.1006.00
+#    lu: 163.253.39.165
+
+links:
+  - {left: ansible-csr1, left_port: GigabitEthernet4, left_ip: 172.10.12.1,
+      right: ansible-csr2, right_port: GigabitEthernet4, right_ip: 172.10.12.2, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-csr1, left_port: GigabitEthernet2, left_ip: 172.10.13.1,
+      right: ansible-csr3, right_port: GigabitEthernet2, right_ip: 172.10.13.3, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-csr1, left_port: GigabitEthernet3, left_ip: 172.10.14.1,
+      right: ansible-csr4, right_port: GigabitEthernet3, right_ip: 172.10.14.4, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-csr2, left_port: GigabitEthernet3, left_ip: 172.10.23.2,
+      right: ansible-csr3, right_port: GigabitEthernet3, right_ip: 172.10.23.3, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-csr2, left_port: GigabitEthernet2, left_ip: 172.10.25.2,
+      right: ansible-csr5, right_port: GigabitEthernet2, right_ip: 172.10.25.5, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-csr4, left_port: GigabitEthernet4, left_ip: 172.10.45.4,
+      right: ansible-csr5, right_port: GigabitEthernet4, right_ip: 172.10.45.5, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-csr4, left_port: GigabitEthernet2, left_ip: 172.10.46.4,
+      right: ansible-csr6, right_port: GigabitEthernet2, right_ip: 172.10.46.6, 
+      cost: 10, mpls: True, iso: True }
+
+  - {left: ansible-csr5, left_port: GigabitEthernet3, left_ip: 172.10.56.5,
+      right: ansible-csr6, right_port: GigabitEthernet3, right_ip: 172.10.56.6, 
+      cost: 10, mpls: True, iso: True }
+
+bgp:
+  rr: [1.1.1.1]
+  clients: [2.2.2.2, 3.3.3.3, 4.4.4.4, 5.5.5.5, 6.6.6.6]
+  af:
+    - inet
+    - inet-vpn
+
+ospf:
+  area: 0
+  network: p2p
+
+#isis:
+#  network: p2p

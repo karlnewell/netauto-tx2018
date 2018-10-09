@@ -1,0 +1,165 @@
+{% set node = nodes[inventory_hostname] %}
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+platform qfp utilization monitor load 80
+no platform punt-keepalive disable-kernel-core
+platform console virtual
+!
+hostname {{inventory_hostname}}
+!
+vrf definition MANAGEMENT
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+ exit-address-family
+!
+!
+no aaa new-model
+!
+no ip domain lookup
+ip domain name ntc.com
+!
+subscriber templating
+!
+multilink bundle-name authenticated
+!
+!
+license udi pid CSR1000V sn 9KIBQAQ3OPE
+diagnostic bootup level minimal
+archive
+ path bootflash:archive
+!
+netconf-yang cisco-odm actions OSPF
+netconf-yang cisco-odm actions IPRoute
+netconf-yang cisco-odm actions Diffserv
+netconf-yang cisco-odm actions BFDNeighbors
+netconf-yang cisco-odm actions BridgeDomain
+netconf-yang cisco-odm actions VirtualService
+netconf-yang cisco-odm actions EthernetCFMStats
+netconf-yang cisco-odm actions MPLSLDPNeighbors
+netconf-yang cisco-odm actions MPLSStaticBinding
+netconf-yang cisco-odm actions MPLSForwardingTable
+netconf-yang cisco-odm on-demand-enable
+netconf-yang cisco-odm polling-enable
+netconf-yang
+!
+restconf
+!!
+username ntc privilege 15 password 0 ntc123
+!
+redundancy
+!
+lldp run
+cdp run
+!
+interface Loopback0
+ ip address {{node.rid}} 255.255.255.255
+ {% if node.ospf is defined %}
+ ip ospf 1 area {{node.ospf.area}}
+ {% endif %}
+!
+interface GigabitEthernet1
+ vrf forwarding MANAGEMENT
+ ip address {{node.mgmt}} 255.255.255.0
+ negotiation auto
+!
+{% for intf,intf_attr in node.links.items() %}
+interface {{intf.split('.')[0]}}
+ no shutdown
+{%  if intf_attr.vlan  is undefined or intf_attr.vlan == 0 %}
+ ip address {{intf_attr.ip}} {{intf_attr.mask|default('255.255.255.0')}}
+ negotiation auto
+{%  endif %}
+{% if intf_attr.mpls is defined %}
+ mpls ip
+{% endif %}
+!
+{%  if intf_attr.vlan  is defined and intf_attr.vlan != 0 %}
+interface {{intf}}
+ ipv4 address {{intf_attr.ip}} {{intf_attr.mask|default('255.255.255.0')}}
+ encapsulation dot1q {{intf_attr.vlan}}
+{%  endif %}
+!
+{% endfor %}
+!
+router ospf 1
+ router-id {{node.rid}}
+ {% for intf,intf_attr in node.links.items() %}
+  network {{intf_attr.ip}} 0.0.0.255 area {{node.ospf.area}}
+ {% endfor %}
+!
+router bgp {{common.bgp_asn}}
+{% for peer in node.bgp.ibgp.peers %}
+ neighbor {{peer}} remote-as {{common.bgp_asn}}
+ neighbor {{peer}} update-source Loopback0
+{% endfor %}
+ !
+{% if 'inet' in node.bgp.ibgp.af %}
+ address-family ipv4
+  {% for peer in node.bgp.ibgp.peers %}
+  neighbor {{peer}} activate
+  {% if node.bgp.ibgp.rr is defined and node.bgp.ibgp.rr == true %}
+  neighbor {{peer}} route-reflector-client
+  {% endif %}
+  {% endfor %}
+ exit-address-family
+{% endif %}
+ !
+{% if 'inet-vpn' in node.bgp.ibgp.af %}
+ address-family vpnv4
+  {% for peer in node.bgp.ibgp.peers %}
+  neighbor {{peer}} activate
+  {% if node.bgp.ibgp.rr is defined and node.bgp.ibgp.rr == true %}
+  neighbor {{peer}} route-reflector-client
+  {% endif %}
+  {% endfor %}
+ exit-address-family
+{% endif %}
+ !
+!
+mpls label protocol ldp
+!
+virtual-service csr_mgmt
+!
+ip forward-protocol nd
+ip http server
+ip http authentication local
+ip http secure-server
+!
+ip route 0.0.0.0 0.0.0.0 10.0.0.2
+ip route vrf MANAGEMENT 0.0.0.0 0.0.0.0 10.0.0.2
+ip scp server enable
+!
+control-plane
+!
+alias exec ntcclear clear platform software vnic-if nv
+!
+line con 0
+ stopbits 1
+line vty 0
+ privilege level 15
+ login local
+ transport preferred ssh
+line vty 1
+ login local
+ length 0
+ transport preferred ssh
+line vty 2 4
+ privilege level 15
+ login local
+ transport preferred ssh
+line vty 5 30
+ login local
+ transport preferred ssh
+!
+wsma agent exec
+!
+wsma agent config
+!
+wsma agent filesys
+!
+wsma agent notify
+!

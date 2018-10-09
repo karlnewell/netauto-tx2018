@@ -1,0 +1,122 @@
+{% set node = nodes[inventory_hostname] %}
+!
+no schedule tech-support
+!
+transceiver qsfp default-mode 4x10G
+!
+hostname {{inventory_hostname}}
+!
+spanning-tree mode mstp
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$QooVHYszFBY655A/$WnVBzmLe2LsWQ2kF01jtWff4L9xlxIfCpB0/rS7nWB70dFEoIbIYPRf1LHGg/jSGcR6VdecKvweJxry2vttCR1
+username salt privilege 15 role network-admin secret sha512 $6$gNfDGxuNqAufb7SS$XuBAZwDyHEX6Bt6zgDBA0zkJLhOm.5aJ8cwy2wd21DVr9yWr.gqwYBx7NUntbvSjTlKDQBg.XsMIIYRwqU10u1
+username salt sshkey ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjxY2hLZ+ju5wdK4GYNhKGgnS8EWLBoEVpo+xQkhDzkTiBx3HGAnmARcVV0B9MqrHZl1omdnirJeygWzVbVY4yPUqGgEcUsTTq9fvK4AjTwtaoB5txAosaOnZq0zewmuZ6EMi6E3RND6A3FGXkf1Il2jg3I8k/dGqdyFI80B7sWy90fk+EqsGMPxVc+l5vAtY2jm84ellxxzBsulxfCSKPH86hZ1GqZ8A1ZBWITu15NjQw0aGssSYGMMTa1T8eFyY4hHWqqdwgOlODg9mZwwP1JdJH79SRoTOjqGGixuAFDGAgH3fNX6u8wTmYya/z7WXH6B2XwiiaZYdcyEbMLPZt knewell@ubuntu
+!
+{% for intf,intf_attr in node.links.items() %}
+interface {{intf.split('.')[0]}}
+   no switchport
+{%  if intf_attr.vlan  is undefined or intf_attr.vlan == 0 %}
+   ip address {{intf_attr.ip}}/{{intf_attr.mask|default('24')}}
+{%  endif %}
+{% if intf_attr.iso is defined %}
+   isis enable sr_instance
+   isis network point-to-point
+{% endif %}
+!
+{%  if intf_attr.vlan  is defined and intf_attr.vlan != 0 %}
+interface {{intf}}
+   ip address {{intf_attr.ip}}/{{intf_attr.mask|default('24')}}
+   encapsulation dot1q {{intf_attr.vlan}}
+{%  endif %}
+!
+{% endfor %}
+!
+interface Loopback0
+   ip address {{node.rid}}/32
+{% if node.iso is defined %}
+   isis enable sr_instance
+{% endif %}
+{% if node.sid is defined %}
+   node-segment ipv4 index {{node.sid}}
+{% endif %}
+!
+interface Management1
+   ip address {{node.mgmt}}/22
+!
+ip route 0.0.0.0/0 10.39.0.1
+!
+ip routing
+!
+ipv6 unicast-routing
+!
+{% if node.ospf is defined %}
+router ospf 1
+   address-family ipv4 unicast
+   area {{node.ospf.area}}
+      interface Loopback0
+      passive enable
+   !
+{% for intf, intf_attr in node.links.items()|sort %}
+   interface {{intf}}
+      cost {{intf_attr.cost}}
+      network point-to-point
+   !
+{% endfor %}
+   !
+   mpls traffic-eng router-id Loopback0
+{% endif %}
+!
+mpls ip
+!
+mpls label range isis-sr 800000 4096
+!
+router bgp {{common.bgp_asn}}
+   router-id {{node.rid}}
+   !
+{% for peer in node.bgp.ibgp.peers %}
+   neighbor {{peer}} remote-as {{common.bgp_asn}}
+   neighbor {{peer}} update-source Management1
+   !
+{%  if 'inet-lu' in node.bgp.ibgp.af %}
+   address-family ipv4 labeled-unicast
+      neighbor {{peer}} activate
+{%  endif %}
+   !
+{% endfor %}
+ !
+!
+{#
+rsvp
+{% for intf, intf_attr in node.links.items()|sort %}
+   interface {{intf}}
+{% endfor %}
+ !
+#}
+!
+{#
+mpls ldp
+{% for intf, intf_attr in node.links.items()|sort %}
+   interface {{intf}}
+{% endfor %}
+#}
+!
+{% if node.iso is defined %}
+router isis sr_instance
+   net {{node.iso}}
+   is-type level-2
+   log-adjacency-changes
+   !
+   address-family ipv4 unicast
+   !
+   segment-routing mpls
+      router-id {{node.rid}}
+      no shutdown
+   !
+{% endif %}
+!
+management api http-commands
+   protocol http
+   no shutdown
+!

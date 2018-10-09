@@ -1,0 +1,85 @@
+---
+- hosts: localhost
+  name: Create per node data model
+  gather_facts: no
+  tags: [ model ]
+  vars_files:
+  - "core/{{model|default('core-model.yml')}}"
+  tasks:
+  - name: Create per-node data model from fabric data model
+    template: src=core/core-to-nodes.j2 dest=./nodes.yml
+
+- name: Generate Configuration for all routers
+  gather_facts: no
+  hosts: all
+  tags: [ template ]
+  tasks:
+    - include_vars: "./nodes.yml"
+    - name: Gather facts (eos)
+      eos_facts:
+      when: ansible_network_os == 'eos'
+    - name: Gather facts (junos)
+      junos_facts:
+      when: ansible_network_os == 'junos'
+    - name: Gather facts (ios)
+      ios_facts:
+      when: ansible_network_os == 'ios'
+    - name: create the directory for the configuration
+      file: path=core_config  state=directory
+      run_once: true
+    - name: Generate Configuration
+      template: src={{ansible_network_os}}/core.j2 dest=core_config/{{inventory_hostname}}-config.txt
+
+# - name: check the running-config against intended config
+#   gather_facts: no
+#   hosts: all
+#   tags: [ diff ]
+#   tasks:
+#     - name: Diff config (ios)
+#       ios_config:
+#         backup: yes
+#         diff_against: intended
+#         intended_config: "{{ lookup('file', 'core_config/{{inventory_hostname}}-config.txt') }}"
+#       when: ansible_network_os == 'ios'
+
+- name: push the configuration to the devices
+  gather_facts: no
+  hosts: all
+  tags: [ deploy ]
+  tasks:
+    - include_vars: "./nodes.yml"
+    - file: path=diff state=directory
+      run_once: true
+
+    - name: Load config (junos)
+      junos_config:
+        backup: yes
+        src: core_config/{{inventory_hostname}}-config.txt
+        update: override
+        comment: Ansible config update
+      when: ansible_network_os == 'junos'
+
+    - name: Load config (eos)
+      eos_config:
+        backup: yes
+        src: core_config/{{inventory_hostname}}-config.txt
+      when: ansible_network_os == 'eos'
+
+    - name: Load config (ios)
+      ios_config:
+        backup: yes
+        src: core_config/{{inventory_hostname}}-config.txt
+      when: ansible_network_os == 'ios'
+
+#    - name: load the configuration to the devices
+#      napalm_install_config:
+#        hostname: "{{ ansible_host }}"
+#        username: "{{ ansible_user }}"
+#        dev_os: "{{ ansible_network_os }}"
+#        optional_args:
+#          key_file: "{{ ansible_ssh_private_key_file }}"
+#        config_file: core_config/{{inventory_hostname}}-config.txt
+#        commit_changes: "{{commit}}"
+#        replace_config: "{{replace_config|default('0')}}"
+#        diff_file: diff/{{inventory_hostname}}-diff.txt
+#      when: "inventory_hostname in nodes.keys()"
