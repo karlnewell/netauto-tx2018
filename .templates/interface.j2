@@ -1,0 +1,16 @@
+{% for name,node in nodes.items() %}
+{{name}}
+
+interfaces {
+  {%- for intf,intf_attr in node.links.items() %}
+  {{intf.split('.')[0]}} {
+    description "Connected to {{intf_attr.remote}}"
+    unit {{intf_attr.vlan}} {
+      family inet {
+        address {{intf_attr.ip}}/{{intf_attr.mask|default('24')}}
+      }
+    }
+  }
+  {%- endfor %}
+}
+{% endfor %}

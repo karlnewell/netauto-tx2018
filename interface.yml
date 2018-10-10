@@ -1,0 +1,15 @@
+---
+nodes:
+  node1:
+    mgmt: 10.0.0.1
+    rid:  1.1.1.1
+    links:
+      ge-0/0/0.0: { ip: 172.10.12.1, remote: node2, vlan: 0, mpls: True, }
+      ge-0/0/1.0: { ip: 172.10.13.1, remote: node3, vlan: 0, mpls: True, }
+
+  node2:
+    mgmt: 10.0.0.2
+    rid:  2.2.2.2
+    links:
+      ge-0/0/0.0: { ip: 172.10.12.2, remote: node1, vlan: 0, mpls: True }
+      ge-0/0/1.0: { ip: 172.10.23.2, remote: node3, vlan: 0, mpls: True }
