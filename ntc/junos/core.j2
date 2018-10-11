@@ -67,6 +67,7 @@ system {
 **************************************************
     #}
 interfaces {
+{%  if node.links is defined %}
 {% for intf,intf_attr in node.links.items()|sort %}
     {{ intf.split('.')[0] }} {
         description "{{intf_attr.remote}}"
@@ -98,6 +99,7 @@ interfaces {
     }
 {%      endif %}   
 {% endfor %}
+{% endif %}
     fxp0 {
         description "OOB to MGMT Network";
         unit 0 {
@@ -106,6 +108,7 @@ interfaces {
             }
         }
     }
+{%  if node.rid is defined %}
     lo0 {
         unit 0 {
             family inet {
@@ -118,6 +121,7 @@ interfaces {
 {%          endif %}            
         }
     }
+{% endif %}
 }
 snmp {
     community public {
@@ -133,8 +137,12 @@ snmp {
 **************************************************
     #}
 routing-options {
+{%  if node.rid is defined %}
     router-id {{ node.rid }};
+{% endif %}
+{%  if common is defined %}
     autonomous-system {{ common.bgp_asn }};
+{% endif %}
     static {
         route 0.0.0.0/0 {
             next-hop 10.0.0.2;
@@ -242,9 +250,11 @@ protocols {
 #}
 {% if node.ldp is not defined  %}
     ldp {
+{%  if node.links is defined %}
 {%      for intf, intf_attr in node.links.items()|sort %}
         interface {{intf}};
 {%      endfor %}
+{% endif %}
         interface lo0.0;
     }
 {% endif %}
@@ -266,9 +276,11 @@ protocols {
 **************************************************
 #}
     mpls {
+{%  if node.links is defined %}
 {%      for intf, intf_attr in node.links.items()|sort %}
         interface {{intf}};
 {%      endfor %}
+{% endif %}
     }
     lldp {
 {#}
@@ -287,6 +299,7 @@ protocols {
 ###         Default BGP Export policy        #####
 **************************************************
 #}
+{%  if node.bgp is defined %}
 {% if node.bgp.ibgp.rr is not defined  %}
 policy-options {
     policy-statement __Ansible_Core_export {
@@ -303,3 +316,4 @@ policy-options {
     }
 }
 {%  endif %}
+{% endif %}

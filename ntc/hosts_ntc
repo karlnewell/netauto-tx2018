@@ -6,20 +6,20 @@ all:
         vmx:
           hosts:
             ntc-vmx7:
-              ansible_host: 18.235.232.152
+              ansible_host: 18.210.59.60
             ntc-vmx8:
-              ansible_host: 34.239.98.235
+              ansible_host: 18.235.205.27
             ntc-vmx9:
-              ansible_host: 18.215.215.54
+              ansible_host: 52.70.151.73
     cisco:
       children:
         ios:
           hosts:
             ntc-csr1:
-              ansible_host: 18.235.163.52
+              ansible_host: 54.158.167.151
             ntc-csr2:
-              ansible_host: 54.158.24.79
+              ansible_host: 18.213.140.121
             ntc-csr3:
-              ansible_host: 54.242.37.150
+              ansible_host: 34.235.229.64
   vars:
     model: core-model-ntc.yml

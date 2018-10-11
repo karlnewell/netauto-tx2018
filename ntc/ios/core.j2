@@ -55,17 +55,32 @@ redundancy
 lldp run
 cdp run
 !
+{% if base is defined %}
+interface Loopback0
+default interface Loopback0
+{% endif %}
+{%  if node.rid is defined %}
 interface Loopback0
  ip address {{node.rid}} 255.255.255.255
  {% if node.ospf is defined %}
  ip ospf 1 area {{node.ospf.area}}
  {% endif %}
+{% endif %}
 !
 interface GigabitEthernet1
  vrf forwarding MANAGEMENT
  ip address {{node.mgmt}} 255.255.255.0
  negotiation auto
 !
+{% if base is defined %}
+interface GigabitEthernet2
+default interface GigabitEthernet2
+interface GigabitEthernet3
+default interface GigabitEthernet3
+interface GigabitEthernet4
+default interface GigabitEthernet4
+{% endif %}
+{%  if node.links is defined %}
 {% for intf,intf_attr in node.links.items() %}
 interface {{intf.split('.')[0]}}
  no shutdown
@@ -84,13 +99,23 @@ interface {{intf}}
 {%  endif %}
 !
 {% endfor %}
+{% endif %}
 !
+{% if base is defined %}
+no router ospf 1
+{% endif %}
+{%  if node.rid is defined %}
 router ospf 1
  router-id {{node.rid}}
  {% for intf,intf_attr in node.links.items() %}
   network {{intf_attr.ip}} 0.0.0.255 area {{node.ospf.area}}
  {% endfor %}
+{% endif %}
 !
+{% if base is defined %}
+no router bgp 65000
+{% endif %}
+{%  if common is defined %}
 router bgp {{common.bgp_asn}}
 {% for peer in node.bgp.ibgp.peers %}
  neighbor {{peer}} remote-as {{common.bgp_asn}}
@@ -119,6 +144,7 @@ router bgp {{common.bgp_asn}}
  exit-address-family
 {% endif %}
  !
+{% endif %}
 !
 mpls label protocol ldp
 !

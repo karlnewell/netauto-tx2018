@@ -6,30 +6,21 @@
 
 ---
 
-{%  if common is defined %}
 common:
     bgp_asn: {{ common.bgp_asn }}
-{% endif %}
-
-{% if base is defined %}
-base: {{ base }}
-{% endif %}
 
 nodes:
 {% for node in nodes %}
 
   {{ node.name }}:
     mgmt: {{ node.mgmt }}
-{%  if node.rid is defined %}
     rid:  {{ node.rid }}
-{% endif %}
 {%  if node.sid is defined %}
     sid: {{ node.sid }}
 {%  endif %}
 {%  if node.iso is defined %}
     iso: {{ node.iso }}
 {%  endif %}
-{%  if links is defined %}
     links:
 {%   for link in links %}
 {%     if link.left == node.name %}
@@ -38,7 +29,6 @@ nodes:
       {{ core_link(link.right_port,link.right_ip, link.cost|default(''),link.vlan|default('0'),link.left,link.mpls|default(''),link.iso|default('')) }}
 {%     endif %}
 {%   endfor %}
-{% endif %}
 {%  if bgp is defined %}
     bgp:
        ibgp:

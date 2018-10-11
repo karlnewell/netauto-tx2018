@@ -1,28 +1,20 @@
-#
-# Nodes in the network
-#
-
 ---
-
-
-base: True
-
+base: true
 nodes:
-
-  ntc-csr1:
+  - name: ntc-csr1
     mgmt: 10.0.0.51
 
-  ntc-csr2:
+  - name: ntc-csr2
     mgmt: 10.0.0.52
 
-  ntc-csr3:
+  - name: ntc-csr3
     mgmt: 10.0.0.53
 
-  ntc-vmx7:
+  - name: ntc-vmx7
     mgmt: 10.0.0.37
 
-  ntc-vmx8:
+  - name: ntc-vmx8
     mgmt: 10.0.0.38
 
-  ntc-vmx9:
+  - name: ntc-vmx9
     mgmt: 10.0.0.39
