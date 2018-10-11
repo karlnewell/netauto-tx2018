@@ -1,0 +1,19 @@
+---
+all:
+  children:
+    junos:
+      children:
+        vlab:
+          hosts:
+            vlab-vmx1:
+              ansible_host: 66.129.235.2
+              ansible_port: 37005
+            vlab-vmx2:
+              ansible_host: 66.129.235.2
+              ansible_port: 37008
+            vlab-vmx3:
+              ansible_host: 66.129.235.2
+              ansible_port: 37011
+            vlab-vmx4:
+              ansible_host: 66.129.235.2
+              ansible_port: 37014

@@ -1,0 +1,26 @@
+- name: Collect facts play
+  gather_facts: no
+  hosts: all
+  tags: [ facts ]
+
+  tasks:
+    - name: collect junos facts
+      junos_facts:
+      register: junos
+    - name: print facts
+      debug:
+        var: junos
+
+- name: Collect configuration
+  gather_facts: no
+  hosts: all
+  tags: [ config ]
+
+  tasks:
+    - name: collect junos configuration
+      junos_command:
+        commands: show configuration
+      register: junos_conf
+    - name: print facts
+      debug:
+        var: junos_conf
