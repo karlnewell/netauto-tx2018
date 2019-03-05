@@ -7,6 +7,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  git \
  inetutils-ping \
  locales \
+ nano \
  netcat-openbsd \
  python \
  python-virtualenv \
@@ -15,6 +16,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  python3-pip \
  python3-venv \
  sudo \
+ vim \
  wget
 # && rm -rf /var/lib/apt/lists/*
 
